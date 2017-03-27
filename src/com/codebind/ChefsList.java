@@ -1,8 +1,6 @@
 package com.codebind;
 
-/**
- * Created by Alex on 3/26/2017.
- */
+
 public class ChefsList {
 
     private String order;

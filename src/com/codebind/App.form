@@ -15,7 +15,7 @@
           <tabbedpane title="Clock-In"/>
         </constraints>
         <properties>
-          <visible value="false"/>
+          <visible value="true"/>
         </properties>
         <border type="none"/>
         <children>
@@ -33,7 +33,10 @@
                     <preferred-size width="150" height="-1"/>
                   </grid>
                 </constraints>
-                <properties/>
+                <properties>
+                  <editable value="false"/>
+                  <horizontalAlignment value="4"/>
+                </properties>
               </component>
               <component id="7c40b" class="javax.swing.JButton" binding="buttonDEL">
                 <constraints>

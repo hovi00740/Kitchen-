@@ -1,6 +1,6 @@
 package com.codebind;
 
-import com.mysql.jdbc.PreparedStatement;
+//import com.mysql.jdbc.PreparedStatement;
 
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
@@ -17,10 +17,9 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Created by Alex on 3/25/2017.
- */
+
 public class App {
+    // Keypad Buttons used for Kitchen Login Screen
     private JPanel panelCLOCKIN;
     private JTextField textFieldInput;
     private JButton buttonDEL;
@@ -67,6 +66,7 @@ public class App {
     AbstractTableModel datamodelWAIT;
 
     public App() {
+        // Creates a new instances of a data model for the chef screen
 
         datamodelCHEF = new AbstractTableModel() {
             @Override
@@ -89,7 +89,7 @@ public class App {
                 return rowIndex * columnIndex;
             }
         };
-
+       //Uploads the new data model saved in  datamodelCHEF
         tableCHEF.setModel(datamodelCHEF);
 
         datamodelWAIT = new AbstractTableModel() {
@@ -113,15 +113,14 @@ public class App {
                 return rowIndex * columnIndex;
             }
         };
-
+        //Uploads the new data model saved in  datamodelCHEF
         tableWAIT.setModel(datamodelWAIT);
 
 
 
         tableCHEF.getSelectionModel().addListSelectionListener(new ListSelectionListener(){
             public void valueChanged(ListSelectionEvent event) {
-                // do some actions here, for example
-                // print first column value from selected row
+
                 int i = tableCHEF.getSelectedRow();
                 selectedRowIDCHEF = tableCHEF.getSelectedRow();
 
@@ -139,8 +138,6 @@ public class App {
 
         tableWAIT.getSelectionModel().addListSelectionListener(new ListSelectionListener(){
             public void valueChanged(ListSelectionEvent event) {
-                // do some actions here, for example
-                // print first column value from selected row
                 int i = tableWAIT.getSelectedRow();
                 selectedRowIDWAIT = tableWAIT.getSelectedRow();
 
@@ -155,7 +152,7 @@ public class App {
                 System.out.println(tableWAIT.getValueAt(tableWAIT.getSelectedRow(), 0).toString());
             }
         });
-
+        // Action Listeners for the keypad buttons
         buttonONE.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -216,12 +213,15 @@ public class App {
                 textFieldInput.setText(textFieldInput.getText() + "9");
             }
         });
+        //Updates the table of elements whenever a item is deleted
         buttonDEL.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 int length = textFieldInput.getText().length();
                 int number = textFieldInput.getText().length() - 1;
                 String store;
+
+                //If there is a value
 
                 if(length > 0){
                     StringBuilder back = new StringBuilder(textFieldInput.getText());
@@ -292,6 +292,101 @@ public class App {
                 ScrollPaneCHEF.repaint();
                 panelCHEF.revalidate();
                 panelCHEF.repaint();
+            }
+        });
+        buttonDELwait.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                Connection connection = getConnection();
+                String sql = "DELETE FROM waiterslist WHERE `Order` = ?";
+                try {
+                    java.sql.PreparedStatement pstmt = connection.prepareStatement(sql);
+                    pstmt.setString(1, selectedOrderWAIT);
+                    int deleteCount = pstmt.executeUpdate();
+
+
+                } catch (Exception ee){
+                    ee.printStackTrace();
+                }
+                ArrayList<ChefsList> list = getUsersListWait();
+                rowdata = new Object [list.size()][4];
+
+                for(int i = 0; i < list.size();i++){
+                    rowdata[i][0] = list.get(i).getOrder();
+                    rowdata[i][1] = list.get(i).getNotes();
+                    rowdata[i][2] = list.get(i).getTableNo();
+                    rowdata[i][3] = list.get(i).getServer();
+                }
+
+                datamodelWAIT = new AbstractTableModel() {
+                    @Override
+                    public int getRowCount() {
+                        return rowdata.length;
+                    }
+
+                    @Override
+                    public int getColumnCount() {
+                        return CHEFcolNames.length;
+                    }
+
+                    @Override
+                    public String getColumnName(int index){
+                        return CHEFcolNames[index];
+                    }
+
+                    @Override
+                    public Object getValueAt(int row, int col) {
+                        return rowdata[row][col];
+                    }
+
+
+                };
+
+                tableCHEF.setModel(datamodelCHEF);
+                datamodelCHEF.fireTableDataChanged();
+            }
+        });
+        buttonOK.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+               if(textFieldInput.getText().length() != 5){
+                   JOptionPane.showMessageDialog(null, "Clock-in pin must be 5 digits.");
+               }
+               else{
+                   String firstName = "Jim";
+                   String lastName = "Jimmerson";
+
+                   JOptionPane.showMessageDialog(null, "YOU DID IT!");
+
+                   String toFind = textFieldInput.getText();
+
+                   Connection connection = getConnection();
+                   String query = "SELECT FirstName, LastName from clockin WHERE idClockIn = ?";
+                   try {
+
+                       java.sql.PreparedStatement pstmt = connection.prepareStatement(query);
+                       pstmt.setString(1, toFind);
+                       ResultSet rs;
+
+                       rs = pstmt.executeQuery();
+                       while(rs.next()){
+                           firstName = rs.getString("FirstName");
+                           lastName = rs.getString("LastName");
+                       }
+
+                       String messageString = firstName + lastName + " has been clocked!";
+
+                       JOptionPane.showMessageDialog(null, messageString);
+
+                       connection.close();
+
+
+                   }
+                   catch(Exception ee){
+                        JOptionPane.showMessageDialog(null,"Error in finding the id entered!");
+                        System.err.println(ee.getMessage());
+                   }
+               }
             }
         });
     }
