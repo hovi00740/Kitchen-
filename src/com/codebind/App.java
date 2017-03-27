@@ -221,7 +221,7 @@ public class App {
                 int number = textFieldInput.getText().length() - 1;
                 String store;
 
-                //If there is a value
+                //If there is a value build a string using the string builder in the text field, if not keep it blank
 
                 if(length > 0){
                     StringBuilder back = new StringBuilder(textFieldInput.getText());
@@ -294,6 +294,7 @@ public class App {
                 panelCHEF.repaint();
             }
         });
+        // WAITER TAB
         buttonDELwait.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -346,6 +347,8 @@ public class App {
                 datamodelCHEF.fireTableDataChanged();
             }
         });
+        // Action listener for the java swing ok button that logins in the entry Pre-Condition: Must be a five digit number, Post-Condition: information is pushed to the
+        //database upon completion. Success Prompt "YOU DID IT!".
         buttonOK.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -390,7 +393,8 @@ public class App {
             }
         });
     }
-
+    // Creates a JDBC connection to a data source using the Driver Manager which is part of the
+    // Java sql library. Returns a connections to the data source
     public Connection getConnection(){
         Connection con;
         try{
@@ -547,16 +551,7 @@ public class App {
         }
     }
 
-
-
-
-
-
-
-
-
-
-
+/*START OF THE MAIN FUNCTION*/
     public static void main(String[] args) {
         JFrame frame = new JFrame("App");
         frame.setContentPane(new App().tabbedPane);
@@ -567,3 +562,4 @@ public class App {
 
     }
 }
+/*END OF THE MAIN FUNCTION*/
