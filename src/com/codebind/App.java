@@ -398,7 +398,7 @@ public class App {
     public Connection getConnection(){
         Connection con;
         try{
-            con = DriverManager.getConnection("jdbc:mysql://127.0.0.1:3306/chef","amd","drworm");
+            con = DriverManager.getConnection("jdbc:mysql://127.0.0.1:3306/chef","amd","password");
             return con;
         } catch (Exception e){
             e.printStackTrace();
