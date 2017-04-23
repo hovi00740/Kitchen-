@@ -4,9 +4,9 @@ import junit.framework.Assert;
 import junit.framework.TestCase;
 
 public class ChefsListTest extends TestCase {
-    private final ChefsList ChefTest = new ChefsList("Ham","No Cheese",3,"Hana");
-    private final ChefsList ChefTestLowercase = new ChefsList("ham","no cheese",3,"hana");
-    private final ChefsList ChefTestBlank = new ChefsList("","",0,"");
+    private final ChefsList ChefTest = new ChefsList("Ham","No Cheese",3,"Hana",0);
+    private final ChefsList ChefTestLowercase = new ChefsList("ham","no cheese",3,"hana",0);
+    private final ChefsList ChefTestBlank = new ChefsList("","",0,"",0);
 
 
     public void testGetOrder() throws Exception {

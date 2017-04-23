@@ -7,12 +7,14 @@ public class ChefsList {
     private String notes;
     private int tableNo;
     private String server;
+    private int id;
 
-    public ChefsList(String Order, String Notes, int TableNo, String Server){
+    public ChefsList(String Order, String Notes, int TableNo, String Server, int Id){
         this.order = Order;
         this.notes = Notes;
         this.tableNo = TableNo;
         this.server = Server;
+        this.id = Id;
     }
 
     public String getOrder(){
@@ -30,6 +32,8 @@ public class ChefsList {
     public String getServer(){
         return server;
     }
+
+    public int getid() {return id;}
 
 
 }

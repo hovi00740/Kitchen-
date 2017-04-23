@@ -2,6 +2,8 @@ package com.codebind;
 
 //import com.mysql.jdbc.PreparedStatement;
 
+import org.jetbrains.annotations.Nullable;
+
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -10,12 +12,8 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.ArrayList;
-import java.util.List;
 
 
 public class App {
@@ -46,7 +44,7 @@ public class App {
     private JScrollPane ScrollPaneCHEF;
     private JScrollPane ScrollPaneWAIT;
 
-    String[] CHEFcolNames = {"Order Name", "Notes", "Table","Server"};
+    String[] CHEFcolNames = {"Order Name", "Notes", "Table","Server","id"};
     Object[][] rowdata;
 
     String selectedOrderCHEF;
@@ -62,71 +60,40 @@ public class App {
     int selectedRowIDWAIT;
 
 
-    AbstractTableModel datamodelCHEF;
-    AbstractTableModel datamodelWAIT;
+    //AbstractTableModel datamodelCHEF;
+    //AbstractTableModel datamodelWAIT;
+
+    //DefaultTableModel datamodelCHEF = (DefaultTableModel)tableCHEF.getModel();
+    //DefaultTableModel datamodelWAIT = (DefaultTableModel)tableWAIT.getModel();
 
     public App() {
         // Creates a new instances of a data model for the chef screen
 
-        datamodelCHEF = new AbstractTableModel() {
-            @Override
-            public int getRowCount() {
-                return 0;
-            }
-
-            @Override
-            public int getColumnCount() {
-                return CHEFcolNames.length;
-            }
-
-            @Override
-            public String getColumnName(int index){
-                return CHEFcolNames[index];
-            }
-
-            @Override
-            public Object getValueAt(int rowIndex, int columnIndex) {
-                return rowIndex * columnIndex;
-            }
-        };
+        DefaultTableModel datamodelCHEF = (DefaultTableModel)tableCHEF.getModel();
+        datamodelCHEF.setDataVector(rowdata, CHEFcolNames);
+        datamodelCHEF.fireTableDataChanged();
        //Uploads the new data model saved in  datamodelCHEF
-        tableCHEF.setModel(datamodelCHEF);
+        //tableCHEF.setModel(datamodelCHEF);
 
-        datamodelWAIT = new AbstractTableModel() {
-            @Override
-            public int getRowCount() {
-                return 0;
-            }
+        DefaultTableModel datamodelWAIT = (DefaultTableModel)tableWAIT.getModel();
+        datamodelWAIT.setDataVector(rowdata, CHEFcolNames);
+        datamodelWAIT.fireTableDataChanged();
 
-            @Override
-            public int getColumnCount() {
-                return CHEFcolNames.length;
-            }
 
-            @Override
-            public String getColumnName(int index){
-                return CHEFcolNames[index];
-            }
-
-            @Override
-            public Object getValueAt(int rowIndex, int columnIndex) {
-                return rowIndex * columnIndex;
-            }
-        };
         //Uploads the new data model saved in  datamodelCHEF
-        tableWAIT.setModel(datamodelWAIT);
+        //tableWAIT.setModel(datamodelWAIT);
 
 
 
-        tableCHEF.getSelectionModel().addListSelectionListener(new ListSelectionListener(){
+        /*tableCHEF.getSelectionModel().addListSelectionListener(new ListSelectionListener(){
             public void valueChanged(ListSelectionEvent event) {
 
                 int i = tableCHEF.getSelectedRow();
                 selectedRowIDCHEF = tableCHEF.getSelectedRow();
 
-                TableModel model = tableCHEF.getModel();
+                DefaultTableModel model = (DefaultTableModel)tableCHEF.getModel();
 
-                // Display Slected Row In JTexteFields
+                // Display Selected Row In JTexteFields
                 selectedOrderCHEF = model.getValueAt(i,0).toString();
                 selectedNotesCHEF = model.getValueAt(i,1).toString();
                 selectedTableNoCHEF = model.getValueAt(i,2).toString();
@@ -141,7 +108,7 @@ public class App {
                 int i = tableWAIT.getSelectedRow();
                 selectedRowIDWAIT = tableWAIT.getSelectedRow();
 
-                TableModel model = tableWAIT.getModel();
+                DefaultTableModel model = (DefaultTableModel)tableWAIT.getModel();
 
                 // Display Slected Row In JTexteFields
                 selectedOrderWAIT = model.getValueAt(i,0).toString();
@@ -151,7 +118,7 @@ public class App {
 
                 System.out.println(tableWAIT.getValueAt(tableWAIT.getSelectedRow(), 0).toString());
             }
-        });
+        });*/
         // Action Listeners for the keypad buttons
         buttonONE.addActionListener(new ActionListener() {
             @Override
@@ -241,68 +208,95 @@ public class App {
         buttonDELETE.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                DefaultTableModel datamodelCHEF = (DefaultTableModel)tableCHEF.getModel();
                 Connection connection = getConnection();
-                String sql = "DELETE FROM chefslist WHERE `Order` = ?";
+                String sql = "DELETE FROM chefslist WHERE `id` = ?";
+                String selOrderCHEF = datamodelCHEF.getValueAt(tableCHEF.getSelectedRow(),0).toString();
+                String selNotesCHEF = datamodelCHEF.getValueAt(tableCHEF.getSelectedRow(),1).toString();
+                String selTableNoCHEF = datamodelCHEF.getValueAt(tableCHEF.getSelectedRow(),2).toString();
+                String selServerCHEF = datamodelCHEF.getValueAt(tableCHEF.getSelectedRow(),3).toString();
+                String selidCHEF = datamodelCHEF.getValueAt(tableCHEF.getSelectedRow(),4).toString();
                 try {
                     java.sql.PreparedStatement pstmt = connection.prepareStatement(sql);
-                    pstmt.setString(1, selectedOrderCHEF);
+                    pstmt.setString(1, selidCHEF);
                     int deleteCount = pstmt.executeUpdate();
 
 
                 } catch (Exception ee){
                     ee.printStackTrace();
                 }
-                ArrayList<ChefsList> list = getUsersListChef();
-                rowdata = new Object [list.size()][4];
+
+                ArrayList<ChefsList> list = getUsersListWait();
+
+                sql = "INSERT INTO waiterslist values(?,?,?,?,?)";
+                try{
+                    java.sql.PreparedStatement pstmt = connection.prepareStatement(sql);
+                    pstmt.setString(1, selOrderCHEF);
+                    pstmt.setString(2, selNotesCHEF);
+                    pstmt.setString(3, selTableNoCHEF);
+                    pstmt.setString(4, selServerCHEF);
+                    pstmt.setString(5, String.valueOf(list.size() + 1));
+                    int deleteCount = pstmt.executeUpdate();
+                } catch (SQLException e1) {
+                    e1.printStackTrace();
+                }
+
+
+
+
+                list = getUsersListChef();
+                rowdata = new Object [list.size()][5];
 
                 for(int i = 0; i < list.size();i++){
                     rowdata[i][0] = list.get(i).getOrder();
                     rowdata[i][1] = list.get(i).getNotes();
                     rowdata[i][2] = list.get(i).getTableNo();
                     rowdata[i][3] = list.get(i).getServer();
+                    rowdata[i][4] = i + 1;
                 }
 
-                datamodelCHEF = new AbstractTableModel() {
-                    @Override
-                    public int getRowCount() {
-                        return rowdata.length;
-                    }
-
-                    @Override
-                    public int getColumnCount() {
-                        return CHEFcolNames.length;
-                    }
-
-                    @Override
-                    public String getColumnName(int index){
-                        return CHEFcolNames[index];
-                    }
-
-                    @Override
-                    public Object getValueAt(int row, int col) {
-                        return rowdata[row][col];
-                    }
-
-
-                };
-
-                tableCHEF.setModel(datamodelCHEF);
+                datamodelCHEF.setDataVector(rowdata, CHEFcolNames);
                 datamodelCHEF.fireTableDataChanged();
-                ScrollPaneCHEF.revalidate();
-                ScrollPaneCHEF.repaint();
-                panelCHEF.revalidate();
-                panelCHEF.repaint();
+
+                list = getUsersListWait();
+                rowdata = new Object [list.size()][5];
+
+                for(int i = 0; i < list.size();i++){
+                    rowdata[i][0] = list.get(i).getOrder();
+                    rowdata[i][1] = list.get(i).getNotes();
+                    rowdata[i][2] = list.get(i).getTableNo();
+                    rowdata[i][3] = list.get(i).getServer();
+                    rowdata[i][4] = i + 1;
+                }
+
+                DefaultTableModel datamodelWAIT = (DefaultTableModel)tableWAIT.getModel();
+                datamodelWAIT.setDataVector(rowdata, CHEFcolNames);
+                datamodelWAIT.fireTableDataChanged();
+
+
+
+
+                //tableCHEF.setModel(datamodelCHEF);
+                //datamodelCHEF.fireTableDataChanged();
+               // ScrollPaneCHEF.revalidate();
+              //  ScrollPaneCHEF.repaint();
+              //  panelCHEF.revalidate();
+               // panelCHEF.repaint();
             }
         });
+
+        
         // WAITER TAB
         buttonDELwait.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                DefaultTableModel datamodelWAIT = (DefaultTableModel)tableWAIT.getModel();
                 Connection connection = getConnection();
                 String sql = "DELETE FROM waiterslist WHERE `Order` = ?";
+                String selOrderWAIT = datamodelWAIT.getValueAt(tableWAIT.getSelectedRow(),0).toString();
                 try {
                     java.sql.PreparedStatement pstmt = connection.prepareStatement(sql);
-                    pstmt.setString(1, selectedOrderWAIT);
+                    pstmt.setString(1, selOrderWAIT);
                     int deleteCount = pstmt.executeUpdate();
 
 
@@ -310,41 +304,22 @@ public class App {
                     ee.printStackTrace();
                 }
                 ArrayList<ChefsList> list = getUsersListWait();
-                rowdata = new Object [list.size()][4];
+                rowdata = new Object [list.size()][5];
 
                 for(int i = 0; i < list.size();i++){
                     rowdata[i][0] = list.get(i).getOrder();
                     rowdata[i][1] = list.get(i).getNotes();
                     rowdata[i][2] = list.get(i).getTableNo();
                     rowdata[i][3] = list.get(i).getServer();
+                    rowdata[i][4] = i + 1;
                 }
 
-                datamodelWAIT = new AbstractTableModel() {
-                    @Override
-                    public int getRowCount() {
-                        return rowdata.length;
-                    }
 
-                    @Override
-                    public int getColumnCount() {
-                        return CHEFcolNames.length;
-                    }
+                datamodelWAIT.setDataVector(rowdata, CHEFcolNames);
+                datamodelWAIT.fireTableDataChanged();
 
-                    @Override
-                    public String getColumnName(int index){
-                        return CHEFcolNames[index];
-                    }
-
-                    @Override
-                    public Object getValueAt(int row, int col) {
-                        return rowdata[row][col];
-                    }
-
-
-                };
-
-                tableCHEF.setModel(datamodelCHEF);
-                datamodelCHEF.fireTableDataChanged();
+                //tableCHEF.setModel(datamodelCHEF);
+                //datamodelCHEF.fireTableDataChanged();
             }
         });
         // Action listener for the java swing ok button that logins in the entry Pre-Condition: Must be a five digit number, Post-Condition: information is pushed to the
@@ -395,10 +370,12 @@ public class App {
     }
     // Creates a JDBC connection to a data source using the Driver Manager which is part of the
     // Java sql library. Returns a connections to the data source
-    public Connection getConnection(){
-        Connection con;
+    public static Connection getConnection(){
+        Connection con = null;
         try{
-            con = DriverManager.getConnection("chef.clvbnnnbtnmd.us-west-2.rds.amazonaws.com:3306/chef","amd","password");
+            String url = "jdbc:mysql://chef.clvbnnnbtnmd.us-west-2.rds.amazonaws.com:3306/chef";
+            Class.forName("com.mysql.jdbc.Driver");
+            con = DriverManager.getConnection(url,"amd","password");
             return con;
         } catch (Exception e){
             e.printStackTrace();
@@ -425,7 +402,7 @@ public class App {
 
             while(rs.next())
             {
-                chefsList = new ChefsList(rs.getString("Order"),rs.getString("Notes"),rs.getInt("TableNo"),rs.getString("Server"));
+                chefsList = new ChefsList(rs.getString("Order"),rs.getString("Notes"),rs.getInt("TableNo"),rs.getString("Server"),rs.getInt("id"));
                 usersList.add(chefsList);
             }
 
@@ -453,7 +430,7 @@ public class App {
 
             while(rs.next())
             {
-                chefsList = new ChefsList(rs.getString("Order"),rs.getString("Notes"),rs.getInt("TableNo"),rs.getString("Server"));
+                chefsList = new ChefsList(rs.getString("Order"),rs.getString("Notes"),rs.getInt("TableNo"),rs.getString("Server"),rs.getInt("id"));
                 usersList.add(chefsList);
             }
 
@@ -466,86 +443,49 @@ public class App {
 
     // display data in CHEF JTable
     public class updateCHEF{
-        String[] CHEFcolNames = {"Order Name", "Notes", "Table","Server"};
+        String[] CHEFcolNames = {"Order Name", "Notes", "Table","Server","id"};
          //= {{"Cheeseburger French Fries","Well done","7","Kathy"},{"Lobster Bisque","none","5","Jay"}};
 
         public updateCHEF(){
             ArrayList<ChefsList> list = getUsersListChef();
-            rowdata = new Object [list.size()][4];
+            rowdata = new Object [list.size()][5];
 
             for(int i = 0; i < list.size();i++){
                 rowdata[i][0] = list.get(i).getOrder();
                 rowdata[i][1] = list.get(i).getNotes();
                 rowdata[i][2] = list.get(i).getTableNo();
                 rowdata[i][3] = list.get(i).getServer();
+                rowdata[i][4] = i + 1;
             }
 
-            datamodelCHEF = new AbstractTableModel() {
-                @Override
-                public int getRowCount() {
-                    return rowdata.length;
-                }
-
-                @Override
-                public int getColumnCount() {
-                    return CHEFcolNames.length;
-                }
-
-                @Override
-                public String getColumnName(int index){
-                    return CHEFcolNames[index];
-                }
-
-                @Override
-                public Object getValueAt(int row, int col) {
-                    return rowdata[row][col];
-                }
+            DefaultTableModel datamodelCHEF = (DefaultTableModel)tableCHEF.getModel();
+            datamodelCHEF.setDataVector(rowdata, CHEFcolNames);
+            datamodelCHEF.fireTableDataChanged();
 
 
-            };
-
-            tableCHEF.setModel(datamodelCHEF);
+            //tableCHEF.setModel(datamodelCHEF);
         }
     }
 
     public class updateWAIT{
-        String[] CHEFcolNames = {"Order Name", "Notes", "Table","Server"};
+        String[] CHEFcolNames = {"Order Name", "Notes", "Table","Server","id"};
         //= {{"Cheeseburger French Fries","Well done","7","Kathy"},{"Lobster Bisque","none","5","Jay"}};
 
         public updateWAIT(){
             ArrayList<ChefsList> list = getUsersListChef();
-            rowdata = new Object [list.size()][4];
+            rowdata = new Object [list.size()][5];
 
             for(int i = 0; i < list.size();i++){
                 rowdata[i][0] = list.get(i).getOrder();
                 rowdata[i][1] = list.get(i).getNotes();
                 rowdata[i][2] = list.get(i).getTableNo();
                 rowdata[i][3] = list.get(i).getServer();
+                rowdata[i][4] = i + 1;
             }
 
-            datamodelCHEF = new AbstractTableModel() {
-                @Override
-                public int getRowCount() {
-                    return rowdata.length;
-                }
-
-                @Override
-                public int getColumnCount() {
-                    return CHEFcolNames.length;
-                }
-
-                @Override
-                public String getColumnName(int index){
-                    return CHEFcolNames[index];
-                }
-
-                @Override
-                public Object getValueAt(int row, int col) {
-                    return rowdata[row][col];
-                }
-
-
-            };
+            DefaultTableModel datamodelWAIT = (DefaultTableModel)tableWAIT.getModel();
+            datamodelWAIT.setDataVector(rowdata, CHEFcolNames);
+            datamodelWAIT.fireTableDataChanged();
 
             tableWAIT.setModel(datamodelWAIT);
         }
