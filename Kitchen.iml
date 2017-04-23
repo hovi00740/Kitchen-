@@ -36,5 +36,6 @@
       </library>
     </orderEntry>
     <orderEntry type="library" name="com.bluecatcode.junit:junit-4.12-extended:1.0.4" level="project" />
+    <orderEntry type="library" name="jdatepicker-1.4.0-SNAPSHOT" level="project" />
   </component>
 </module>
