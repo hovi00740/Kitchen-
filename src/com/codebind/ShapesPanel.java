@@ -14,6 +14,7 @@ import java.awt.geom.RoundRectangle2D;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.sql.Connection;
+import java.sql.DriverManager;
 import java.sql.ResultSet;
 import javax.swing.ImageIcon;
 
@@ -71,6 +72,21 @@ public class ShapesPanel extends JPanel {
                 repaint();
             }
         });
+    }
+
+    public int getTableStatus(int index){
+        if (index < TStatus.length){
+            return TStatus[index];
+        }else{
+            return -1;
+        }
+    }
+
+    public void setTableStatus(int index, int status){
+        if (index < TStatus.length && status > 0 && status < 6){
+            TStatus[index] = status;
+            repaint();
+        }
     }
 
     @Override
@@ -254,6 +270,8 @@ public class ShapesPanel extends JPanel {
     }
 
 
+
+
     public class FrejmSTATUS extends JFrame{
         JFrame FrameNUMPAD = new JFrame();
 
@@ -363,6 +381,22 @@ public class ShapesPanel extends JPanel {
             add(buttonCancel, gc);
 
 
+        }
+
+    }
+
+    // Creates a JDBC connection to a data source using the Driver Manager which is part of the
+    // Java sql library. Returns a connections to the data source
+    public static Connection getConnection(){
+        Connection con = null;
+        try{
+            String url = "jdbc:mysql://chef.clvbnnnbtnmd.us-west-2.rds.amazonaws.com:3306/chef";
+            Class.forName("com.mysql.jdbc.Driver");
+            con = DriverManager.getConnection(url,"amd","password");
+            return con;
+        } catch (Exception e){
+            e.printStackTrace();
+            return null;
         }
 
     }

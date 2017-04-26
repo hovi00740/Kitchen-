@@ -69,6 +69,9 @@ public class App {
 
 
     public App() {
+
+        new initDB();
+
         tableCHEF.setRowHeight(tableCHEF.getRowHeight() + 30);
         tableWAIT.setRowHeight(tableWAIT.getRowHeight() + 30);
         tableSCHED.setRowHeight(tableSCHED.getRowHeight() + 30);
@@ -313,6 +316,7 @@ public class App {
                 Connection connection = getConnection();
                 String sql = "DELETE FROM waiterslist WHERE `Order` = ?";
                 String selOrderWAIT = datamodelWAIT.getValueAt(tableWAIT.getSelectedRow(),0).toString();
+                int tableno = (int) datamodelWAIT.getValueAt(tableWAIT.getSelectedRow(),3);
                 try {
                     java.sql.PreparedStatement pstmt = connection.prepareStatement(sql);
                     pstmt.setString(1, selOrderWAIT);
@@ -357,9 +361,11 @@ public class App {
                 }
 
 
-
                 datamodelWAIT.setDataVector(rowdata, CHEFcolNames);
                 datamodelWAIT.fireTableDataChanged();
+
+
+                //panelMAP.setTableStatus(tableno, )
 
                 //tableCHEF.setModel(datamodelCHEF);
                 //datamodelCHEF.fireTableDataChanged();
@@ -469,6 +475,7 @@ public class App {
 
             }
         });
+
     }
     // Creates a JDBC connection to a data source using the Driver Manager which is part of the
     // Java sql library. Returns a connections to the data source
@@ -880,6 +887,59 @@ public class App {
 
             //tableCHEF.setModel(datamodelCHEF);
         }
+    }
+
+
+    //used for demonstration purposes when not fully integrated with customer and manager part
+    public class initDB{
+        public initDB(){
+            Connection connection = getConnection();
+            String query0 = "TRUNCATE TABLE chefslist";
+            String query1 = "TRUNCATE TABLE waiterslist";
+            String query2 = "INSERT INTO chefslist " + "VALUES('Cheeseburger','Bacon',7,'Nancy',1)";
+            String query3 = "INSERT INTO chefslist " + "VALUES('Lobster','none',3,'Brett',2)";
+            String query4 = "INSERT INTO chefslist " + "VALUES('Italian Sub','none',4,'Andy',3)";
+            String query5 = "INSERT INTO chefslist " + "VALUES('Fish Sticks','none',4,'Andy',4)";
+            String query6 = "INSERT INTO chefslist " + "VALUES('Cheesesteak','cheese whiz',5,'Sarah',5)";
+
+            try {
+                boolean rs;
+
+                java.sql.PreparedStatement pstmt = connection.prepareStatement(query0);
+                rs = pstmt.execute(query0);
+
+                pstmt = connection.prepareStatement(query1);
+                rs = pstmt.execute(query1);
+
+                pstmt = connection.prepareStatement(query2);
+                rs = pstmt.execute(query2);
+
+                pstmt = connection.prepareStatement(query3);
+                rs = pstmt.execute(query3);
+
+                pstmt = connection.prepareStatement(query4);
+                rs = pstmt.execute(query4);
+
+                pstmt = connection.prepareStatement(query5);
+                rs = pstmt.execute(query5);
+
+                pstmt = connection.prepareStatement(query6);
+                rs = pstmt.execute(query6);
+
+
+                //String messageString = firstName + lastName + " has been clocked!";
+
+                //JOptionPane.showMessageDialog(null, messageString);
+
+                connection.close();
+
+            }
+            catch(Exception ee){
+                JOptionPane.showMessageDialog(null,"Error in finding the id entered!");
+                System.err.println(ee.getMessage());
+            }
+        }
+
     }
 
 
