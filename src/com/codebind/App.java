@@ -11,10 +11,12 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableColumn;
 import javax.swing.table.TableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.geom.Rectangle2D;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -44,6 +46,7 @@ public class App {
     private JPanel panelWaiter;
     private JTable tableWAIT;
     private JButton buttonDELwait;
+    private JPanel panelMAP;
 
 
 
@@ -54,6 +57,8 @@ public class App {
     private JScrollPane ScrollPaneSCHED;
     private JTable tableSCHED;
     private JButton buttonGetSched;
+    private JPanel panelSCHED;
+    private JPanel panelSHAPE;
 
     String[] CHEFcolNames = {"Order Name", "Notes", "Table","Server","id"};
     String[] SCHEDcolNames = {"SUN", "MON", "TUES","WED","THURS","FRI","SAT"};
@@ -64,7 +69,11 @@ public class App {
 
 
     public App() {
+        tableCHEF.setRowHeight(tableCHEF.getRowHeight() + 30);
+        tableWAIT.setRowHeight(tableWAIT.getRowHeight() + 30);
+        tableSCHED.setRowHeight(tableSCHED.getRowHeight() + 30);
         // Creates a new instances of a data model for the chef screen
+
 
         DefaultTableModel datamodelCHEF = (DefaultTableModel)tableCHEF.getModel();
         datamodelCHEF.setDataVector(rowdata, CHEFcolNames);
@@ -80,46 +89,36 @@ public class App {
         datamodelSCHED.setDataVector(rowdata, SCHEDcolNames);
         datamodelSCHED.fireTableDataChanged();
 
+        new updateCHEF();
 
-        //Uploads the new data model saved in  datamodelCHEF
-        //tableWAIT.setModel(datamodelWAIT);
+        /*ImageIcon icon1, icon2, icon3, icon4, icon5, icon6, icon7, icon8, icon9, icon0, clearIcon, enterIcon, deleteIcon;
+        icon1 = new ImageIcon(getClass().getResource("numberOne.png"));
+        icon2 = new ImageIcon(getClass().getResource("numberTwo.png"));
+        icon3 = new ImageIcon(getClass().getResource("numberThree.png"));
+        icon4 = new ImageIcon(getClass().getResource("numberFour.png"));
+        icon5 = new ImageIcon(getClass().getResource("numberFive.png"));
+        icon6 = new ImageIcon(getClass().getResource("numberSix.png"));
+        icon7 = new ImageIcon(getClass().getResource("numberSeven.png"));
+        icon8 = new ImageIcon(getClass().getResource("numberEight.png"));
+        icon9 = new ImageIcon(getClass().getResource("numberNine.png"));
+        icon0 = new ImageIcon(getClass().getResource("numberZero.png"));
+        enterIcon = new ImageIcon(getClass().getResource("verification.png"));
+        //clearIcon = new ImageIcon(getClass().getResource("delete.png"));
+        deleteIcon = new ImageIcon(getClass().getResource("delete.png"));
 
+        buttonZERO = new JButton(icon0);
+        buttonONE = new JButton(icon1);
+        buttonTWO = new JButton(icon2);
+        buttonTHREE = new JButton(icon3);
+        buttonFOUR = new JButton(icon4);
+        buttonFIVE = new JButton(icon5);
+        buttonSIX = new JButton(icon6);
+        buttonSEVEN = new JButton(icon7);
+        buttonEIGHT = new JButton(icon8);
+        buttonNINE = new JButton(icon9);
+        buttonOK = new JButton(enterIcon);
+        buttonDEL = new JButton(deleteIcon);*/
 
-
-        /*tableCHEF.getSelectionModel().addListSelectionListener(new ListSelectionListener(){
-            public void valueChanged(ListSelectionEvent event) {
-
-                int i = tableCHEF.getSelectedRow();
-                selectedRowIDCHEF = tableCHEF.getSelectedRow();
-
-                DefaultTableModel model = (DefaultTableModel)tableCHEF.getModel();
-
-                // Display Selected Row In JTexteFields
-                selectedOrderCHEF = model.getValueAt(i,0).toString();
-                selectedNotesCHEF = model.getValueAt(i,1).toString();
-                selectedTableNoCHEF = model.getValueAt(i,2).toString();
-                selectedServerCHEF = model.getValueAt(i,3).toString();
-
-                System.out.println(tableCHEF.getValueAt(tableCHEF.getSelectedRow(), 0).toString());
-            }
-        });
-
-        tableWAIT.getSelectionModel().addListSelectionListener(new ListSelectionListener(){
-            public void valueChanged(ListSelectionEvent event) {
-                int i = tableWAIT.getSelectedRow();
-                selectedRowIDWAIT = tableWAIT.getSelectedRow();
-
-                DefaultTableModel model = (DefaultTableModel)tableWAIT.getModel();
-
-                // Display Slected Row In JTexteFields
-                selectedOrderWAIT = model.getValueAt(i,0).toString();
-                selectedNotesWAIT = model.getValueAt(i,1).toString();
-                selectedTableNoWAIT = model.getValueAt(i,2).toString();
-                selectedServerWAIT = model.getValueAt(i,3).toString();
-
-                System.out.println(tableWAIT.getValueAt(tableWAIT.getSelectedRow(), 0).toString());
-            }
-        });*/
         // Action Listeners for the keypad buttons
         buttonONE.addActionListener(new ActionListener() {
             @Override
@@ -197,12 +196,6 @@ public class App {
                     store = back.toString();
                     textFieldInput.setText(store);
                 }
-            }
-        });
-        CHEFADDTEST.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                new updateCHEF();
             }
         });
 
@@ -384,7 +377,7 @@ public class App {
                    String firstName = "";
                    String lastName = "";
 
-                   JOptionPane.showMessageDialog(null, "YOU DID IT!");
+                   //JOptionPane.showMessageDialog(null, "YOU DID IT!");
 
                    String toFind = textFieldInput.getText();
 
@@ -468,7 +461,7 @@ public class App {
                     java.sql.Date selectedDateFULL2 = new java.sql.Date(selectedDate.getTimeInMillis());
                     //String selectedDateFULL2 = String.valueOf(selectedDate.getTime());
 
-                    JOptionPane.showMessageDialog(null, "The Schedule Viewer would now update." + selectedDate.getTime());
+                    //JOptionPane.showMessageDialog(null, "The Schedule Viewer would now update." + selectedDate.getTime());
 
                     new updateSCHED(String.valueOf(schedPIN), String.valueOf(selectedDateFULL1), String.valueOf(selectedDateFULL2));
 
@@ -591,10 +584,14 @@ public class App {
     }
 
 
+
+    // BEGIN FREJMNUMPAD
     public class FrejmNUMPAD extends JFrame{
         JFrame FrameNUMPAD = new JFrame();
 
         public FrejmNUMPAD(){
+
+
             JTextField pinField = new JTextField(10);
             pinField.setEditable(false);
 
@@ -674,7 +671,7 @@ public class App {
                         String firstName = "";
                         String lastName = "";
 
-                        JOptionPane.showMessageDialog(null, "YOU DID IT!");
+                        //JOptionPane.showMessageDialog(null, "YOU DID IT!");
 
                         String toFind = pinField.getText();
 
@@ -700,7 +697,9 @@ public class App {
 
                                 schedPIN = searchedID;
 
-                                JOptionPane.showMessageDialog(null, isSchedPIN);                    //COMMENT OUT LATER
+                                setVisible(false);
+
+                                //JOptionPane.showMessageDialog(null, isSchedPIN);                    //COMMENT OUT LATER
                             }
                             else {
                                 JOptionPane.showMessageDialog(null, "Employee PIN Not Found.");     //COMMNENT OUT LATER
@@ -716,7 +715,7 @@ public class App {
                         }
                     }
                 }
-                //ADDD SOMETHINGS PLEASE
+
             });
 
             buttonDEL.addActionListener(new ActionListener() {
@@ -800,6 +799,7 @@ public class App {
         }
 
     }
+    // END FREJMNUMPAD
 
     // display data in CHEF JTable
     public class updateCHEF{
@@ -881,6 +881,9 @@ public class App {
             //tableCHEF.setModel(datamodelCHEF);
         }
     }
+
+
+
 
 
 /*START OF THE MAIN FUNCTION*/
